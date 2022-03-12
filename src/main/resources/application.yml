@@ -18,6 +18,6 @@ mybatis-plus:
 
 files:
   upload:
-#    path: D:/代码/小白做毕设2022/files/
-    path: D:/idea-workspace/pure-design/src/main/resources/files/
-#    path: /home/files/
+#    path: D:/idea-workspace/pure-design/src/main/resources/files/
+    path: F:/idea-workspace/library/src/main/resources/files/
+
