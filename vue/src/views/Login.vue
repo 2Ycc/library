@@ -53,7 +53,8 @@ export default {
               this.$message.success("登录成功")
 
               if (res.data.role === 'ROLE_STUDENT') {
-                this.$router.push("/front/home")
+                // this.$router.push("/front/home")
+                this.$router.push("/")
               } else {
                 this.$router.push("/")
               }

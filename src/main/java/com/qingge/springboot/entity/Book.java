@@ -13,7 +13,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author closer
@@ -53,7 +53,9 @@ public class Book implements Serializable {
       private Integer nums;
 
       @ApiModelProperty("图书状态：1-上架 0-下架")
-      private String status;
+      private Boolean status;
 
+      @ApiModelProperty("图书封面")
+      private String img;
 
 }

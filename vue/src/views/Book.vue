@@ -20,26 +20,36 @@
       </el-popconfirm>
 
     </div>
-    <el-table :data="tableData" border stripe :header-cell-class-name="'headerBg'"
+    <el-table :data="tableData" border stripe :header-cell-class-name="'headerBg'" style="font-size: 14px;"
               @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55"></el-table-column>
-      <el-table-column prop="id" label="图书ID" width="80"></el-table-column>
-      <el-table-column prop="name" label="书名"></el-table-column>
+      <el-table-column type="selection" width="55" v-if="user.role === 'ROLE_ADMIN'"></el-table-column>
+      <el-table-column prop="id" label="图书ID" width="80" v-if="user.role === 'ROLE_ADMIN'"></el-table-column>
+      <el-table-column prop="name" label="书名">
+        <template slot-scope="scope">
+          <span style="font-size: 15px;">《{{ scope.row.name }}》</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="img" label="封面">
+        <template v-slot="scope">
+          <el-image :src="scope.row.img" :preview-src-list="toImgArray(scope.row.img)" alt="书籍封面" width="90" height="90"/>
+
+        </template>
+      </el-table-column>
       <el-table-column prop="isbn" label="ISBN码"></el-table-column>
       <el-table-column prop="author" label="作者"></el-table-column>
       <el-table-column prop="publisher" label="出版社"></el-table-column>
-      <el-table-column prop="publishTime" label="出版时间"></el-table-column>
+      <el-table-column prop="publishTime" width="120" label="出版时间"></el-table-column>
       <el-table-column prop="createTime" label="上架时间"></el-table-column>
-      <el-table-column prop="nums" label="馆藏数量"></el-table-column>
-      <el-table-column label="启用">
+      <el-table-column prop="nums" width="120" label="剩余馆藏数量" align="center"></el-table-column>
+      <el-table-column label="启用" width="70" v-if="user.role === 'ROLE_ADMIN'">
         <template slot-scope="scope">
-          <el-switch v-model="scope.row.status === '1'" active-color="#13ce66" inactive-color="#ccc"
+          <el-switch v-model="scope.row.status" active-color="#13ce66" inactive-color="#ccc"
                      @change="changeEnable(scope.row)"></el-switch>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="280" align="center">
+      <el-table-column label="操作" width="250" align="center">
         <template slot-scope="scope">
-          <el-button type="primary" @click="borrowBook(scope.row.id)">借阅</el-button>
+          <el-button type="primary" @click="borrowBook(scope.row.id, scope.row.name)">借阅</el-button>
           <el-button type="success" @click="handleEdit(scope.row)" v-if="user.role === 'ROLE_ADMIN'">编辑 <i class="el-icon-edit"></i></el-button>
           <el-popconfirm
               class="ml-5"
@@ -68,30 +78,42 @@
       </el-pagination>
     </div>
 
-    <el-dialog title="课程信息" :visible.sync="dialogFormVisible" width="30%" >
-      <el-form label-width="80px" size="small">
-        <el-form-item label="书名">
+    <el-dialog title="图书信息" :visible.sync="dialogFormVisible" width="30%" destroy-on-close>
+      <el-form label-width="80px" size="small" :rules="rules" :model="form" ref="form">
+        <el-form-item label="书名" prop="name">
           <el-input v-model.trim="form.name"
                     autocomplete="off"
                     maxlength="30"
                     show-word-limit>
           </el-input>
         </el-form-item>
-        <el-form-item label="ISBN码">
-          <el-input v-model.number.trim="form.isbn"
+        <el-form-item label="封面" prop="img">
+          <el-upload
+              class="avatar-uploader"
+              :action="'http://' + serverIp +':9090/file/upload'"
+              :show-file-list="false"
+              :before-upload="beforeAvatarUpload"
+              :on-success="handleAvatarSuccess"
+          >
+            <img v-if="form.img" :src="form.img" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
+        </el-form-item>
+
+        <el-form-item label="ISBN码" prop="isbn">
+          <el-input v-model.trim="form.isbn"
                     autocomplete="off"
                     maxlength="13"
                     show-word-limit>
           </el-input>
         </el-form-item>
-        <el-form-item label="作者">
-          <el-input v-model.trim="form.author" autocomplete="off"></el-input>
+        <el-form-item label="作者" prop="author">
+          <el-input v-model.trim="form.author" autocomplete="off" required="required"></el-input>
         </el-form-item>
-        <el-form-item label="出版社">
+        <el-form-item label="出版社" prop="publisher">
           <el-input v-model.trim="form.publisher" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="出版时间">
-<!--          <el-input v-model="form.publishTime" autocomplete="off"></el-input>-->
+        <el-form-item label="出版时间" style="width: 100%">
           <el-date-picker
               v-model="form.publishTime"
               type="date"
@@ -101,21 +123,32 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item label="馆藏数量">
-<!--          <el-input v-model="form.nums" autocomplete="off" type="number"></el-input>-->
-          <el-input-number v-model="form.nums" :min="1" :max="99" label="馆藏数量"></el-input-number>
+          <el-input-number v-model="form.nums" :min="0" :max="9999" label="馆藏数量"></el-input-number>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button @click="closePanel">取 消</el-button>
         <el-button type="primary" @click="save">确 定</el-button>
       </div>
     </el-dialog>
 
+    <!--借阅提示dialog-->
+<!--    <el-dialog-->
+<!--        title="提示"-->
+<!--        :visible.sync="confirmBorrow"-->
+<!--        width="20%"-->
+<!--        center>-->
+<!--      <span>是否借阅这本书：《{{ this.bookName }}》?</span>-->
+<!--      <span slot="footer" class="dialog-footer">-->
+<!--    <el-button @click="confirmBorrow = false">取 消</el-button>-->
+<!--    <el-button type="primary" @click="confirmBorrow = false">确 定</el-button>-->
+<!--  </span>-->
+<!--    </el-dialog>-->
   </div>
 </template>
 
 <script>
-
+import {serverIp} from "../../public/config";
 export default {
   name: "Book",
   data() {
@@ -125,65 +158,110 @@ export default {
         isbn: '',
         author: '',
         status: '',
+        img: '',
         publisher: '',
         publishTime: '',
-        nums: 1,
+        nums: '',
       },
+      serverIp: serverIp,
       tableData: [],
+      //查询用
       name: '',
       multipleSelection: [],
       pageNum: 1,
       pageSize: 10,
       total: 0,
       dialogFormVisible: false,
-      user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {}
+      user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
+      rules: {
+        name: [
+          { required: true, message: '请输入活动名称', trigger: 'blur' },
+          { min: 1, max: 30, message: '长度在 1 到 30 个字符', trigger: 'blur' }
+        ],
+        isbn: [
+          { required: true, message: '请填写图书的ISBN码', trigger: 'blur' },
+          { min: 13, message: '长度为13个字符', trigger: 'blur' }
+        ],
+        author: [
+          { required: true, message: '请填写图书的作者', trigger: 'blur' }
+        ],
+        publisher: [
+          { required: true, message: '请填写出版社', trigger: 'blur' }
+        ],
+        nums: [
+          { required: true, message: '请填写数量', trigger: 'blur' }
+        ]
+      }
     }
   },
   created() {
     this.load()
   },
   methods: {
-    borrowBook(bookId) {
-      this.request.post('/book/borrowBook/' + bookId + "/" + this.user.id).then(res => {
-        if (res.code === '200') {
-          this.$message.success("选课成功")
-        } else {
-          this.$message.success(res.msg)
-        }
-      })
+    toImgArray(img) {
+      let arr = []
+      arr.push(img)
+      return arr
+    },
+    borrowBook(bookId, bookName) {
+      this.$confirm('确认借阅《' + bookName +'》吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success'
+      }).then(() => {
+        this.request.post('/book/borrowBook/' + bookId + "/" + this.user.id).then(res => {
+          if (res.code === '200') {
+            this.$message.success("借阅成功")
+          } else {
+            this.$message.success(res.msg)
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消借阅'
+        });
+      });
     },
     load() {
-      this.request.get("/book/page", {
+      let url = '/book/enableBooks';
+      if (this.user.role === 'ROLE_ADMIN') {
+        url = '/book/page'
+      }
+      this.request.get(url, {
         params: {
           pageNum: this.pageNum,
           pageSize: this.pageSize,
           name: this.name,
         }
       }).then(res => {
-
         this.tableData = res.data.records
         this.total = res.data.total
-
       })
-
-      // this.request.get("/user/role/ROLE_TEACHER").then(res => {
-      //   this.teachers = res.data
-      // })
     },
     changeEnable(row) {
-
       console.log(row)
-      row.status = -row.status
-      // this.request.post("/book/update", row).then(res => {
-      //   if (res.code === '200') {
-      //     this.$message.success("操作成功")
-      //   }
-      // })
+      this.request.post("/book", row).then(res => {
+        if (res.code === '200') {
+          this.$message.success("操作成功")
+        }
+      })
+    },
+    clearForm() {
+      this.form = {
+        name: '',
+        isbn: '',
+        author: '',
+        status: '',
+        img: '',
+        publisher: '',
+        publishTime: '',
+        nums: 0,
+      }
     },
     handleAdd() {
       this.dialogFormVisible = true
-      this.form = {}
-      this.form.nums = 1
+      this.clearForm()
     },
     handleEdit(row) {
       this.form = JSON.parse(JSON.stringify(row))
@@ -215,16 +293,28 @@ export default {
       })
     },
     save() {
-      console.log(this.form)
-      this.request.post("/book", this.form).then(res => {
-        if (res.code === '200') {
-          this.$message.success("保存成功")
-          this.dialogFormVisible = false
-          this.load()
+      this.$refs['form'].validate((valid) => {
+        if (valid) {
+          // alert('submit!');
+          console.log(this.form)
+          this.request.post("/book", this.form).then(res => {
+            if (res.code === '200') {
+              this.$message.success("保存成功")
+              this.dialogFormVisible = false
+              this.load()
+            } else {
+              this.$message.error("保存失败")
+            }
+          })
         } else {
-          this.$message.error("保存失败")
+          console.log('error submit!!');
+          return false;
         }
-      })
+      });
+    },
+    closePanel() {
+      this.dialogFormVisible = false
+      this.resetForm('form')
     },
     reset() {
       this.name = ""
@@ -243,10 +333,48 @@ export default {
     download(url) {
       window.open(url)
     },
+    handleAvatarSuccess(res) {
+      this.form.img = res
+      console.log(this.form.img)
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      return isJPG && isLt2M;
+    }
   }
 }
 </script>
 
 <style scoped>
-
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
 </style>

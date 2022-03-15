@@ -1,11 +1,12 @@
 package com.qingge.springboot.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qingge.springboot.entity.Book;
 import com.qingge.springboot.mapper.BookMapper;
 import com.qingge.springboot.service.IBookService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 
 /**
  * <p>
@@ -18,12 +19,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements IBookService {
 
+    @Resource
+    BookMapper bookMapper;
+
     @Override
-    public Book borrowBook(Book book) {
+    public Book borrowBook(Integer bookId, Integer userId) {
 //        BookMapper baseMapper = this.baseMapper;
 //        QueryWrapper<Book> wrapper = new QueryWrapper<>();
 //        wrapper.eq("id",book.getId());
-//        Book book1 = baseMapper.selectOne(wrapper);
+//        Book book1 = baseMapper.insert(wrapper);
 
         return null;
     }

@@ -19,5 +19,5 @@ mybatis-plus:
 files:
   upload:
 #    path: D:/idea-workspace/pure-design/src/main/resources/files/
-    path: F:/idea-workspace/library/src/main/resources/files/
+    path: D:/idea-workspace/library/file/
 
