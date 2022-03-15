@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * <p>
@@ -33,13 +32,14 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements IB
     @Resource
     RecordMapper recordMapper;
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Result borrowBook(Integer bookId, Integer userId) {
         //查询是否已经借了此书
         QueryWrapper<Record> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("book_id", bookId);
         queryWrapper.eq("user_id", userId);
+        queryWrapper.eq("if_return", 0);
         queryWrapper.getSqlSelect();
         Record records = recordMapper.selectOne(queryWrapper);
         if (!ObjectUtil.isNull(records)) {
@@ -47,17 +47,18 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements IB
         }
         //查询存书量
         Book book = bookMapper.selectById(bookId);
-        if (book.getNums() > 0) {
-            //减少库存
-            int nums = book.getNums();
-            book.setNums(nums - 1);
-            //更新库存
-            bookMapper.updateById(book);
+        //当前库存
+        int nums = book.getNums();
+        if (nums > 0) {
             //封装借书记录实体类
-            Record bookRecord = new Record(bookId,userId,LocalDate.now(),LocalDate.now().plusMonths(2L));
+            Record bookRecord = new Record(userId,bookId,LocalDate.now(),LocalDate.now().plusMonths(2L),false);
             try {
                 int res = recordMapper.insert(bookRecord);
                 if ( res > 0) {
+                    //减少库存
+                    book.setNums(nums - 1);
+                    //更新库存
+                    bookMapper.updateById(book);
                     return new Result("200","借书成功",book);
                 }
                 else {

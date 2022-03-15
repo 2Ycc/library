@@ -198,6 +198,7 @@ export default {
       }
       let bookId = row.id
       let bookName = row.name
+      console.log("userId:"+this.user.id,"bookId:"+bookId)
       this.$confirm('确认借阅《' + bookName +'》吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
