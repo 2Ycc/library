@@ -1,12 +1,20 @@
 package com.qingge.springboot.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.qingge.springboot.common.Result;
 import com.qingge.springboot.entity.Book;
+import com.qingge.springboot.entity.Record;
 import com.qingge.springboot.mapper.BookMapper;
+import com.qingge.springboot.mapper.RecordMapper;
 import com.qingge.springboot.service.IBookService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
+import java.util.List;
 
 /**
  * <p>
@@ -22,13 +30,47 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements IB
     @Resource
     BookMapper bookMapper;
 
-    @Override
-    public Book borrowBook(Integer bookId, Integer userId) {
-//        BookMapper baseMapper = this.baseMapper;
-//        QueryWrapper<Book> wrapper = new QueryWrapper<>();
-//        wrapper.eq("id",book.getId());
-//        Book book1 = baseMapper.insert(wrapper);
+    @Resource
+    RecordMapper recordMapper;
 
-        return null;
+    @Transactional
+    @Override
+    public Result borrowBook(Integer bookId, Integer userId) {
+        //查询是否已经借了此书
+        QueryWrapper<Record> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("book_id", bookId);
+        queryWrapper.eq("user_id", userId);
+        queryWrapper.getSqlSelect();
+        Record records = recordMapper.selectOne(queryWrapper);
+        if (!ObjectUtil.isNull(records)) {
+            return Result.error("10002","您已经借过此书");
+        }
+        //查询存书量
+        Book book = bookMapper.selectById(bookId);
+        if (book.getNums() > 0) {
+            //减少库存
+            int nums = book.getNums();
+            book.setNums(nums - 1);
+            //更新库存
+            bookMapper.updateById(book);
+            //封装借书记录实体类
+            Record bookRecord = new Record(bookId,userId,LocalDate.now(),LocalDate.now().plusMonths(2L));
+            try {
+                int res = recordMapper.insert(bookRecord);
+                if ( res > 0) {
+                    return new Result("200","借书成功",book);
+                }
+                else {
+                    return Result.error("10001","借书失败");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new Result("500","借书失败",e.toString());
+            }
+        } else {
+            return new Result("10003","本书已经被借完，暂无库存！","0");
+        }
+
+
     }
 }

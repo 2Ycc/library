@@ -49,7 +49,7 @@
       </el-table-column>
       <el-table-column label="操作" width="250" align="center">
         <template slot-scope="scope">
-          <el-button type="primary" @click="borrowBook(scope.row.id, scope.row.name)">借阅</el-button>
+          <el-button type="primary" @click="borrowBook(scope.row)">借阅</el-button>
           <el-button type="success" @click="handleEdit(scope.row)" v-if="user.role === 'ROLE_ADMIN'">编辑 <i class="el-icon-edit"></i></el-button>
           <el-popconfirm
               class="ml-5"
@@ -132,18 +132,6 @@
       </div>
     </el-dialog>
 
-    <!--借阅提示dialog-->
-<!--    <el-dialog-->
-<!--        title="提示"-->
-<!--        :visible.sync="confirmBorrow"-->
-<!--        width="20%"-->
-<!--        center>-->
-<!--      <span>是否借阅这本书：《{{ this.bookName }}》?</span>-->
-<!--      <span slot="footer" class="dialog-footer">-->
-<!--    <el-button @click="confirmBorrow = false">取 消</el-button>-->
-<!--    <el-button type="primary" @click="confirmBorrow = false">确 定</el-button>-->
-<!--  </span>-->
-<!--    </el-dialog>-->
   </div>
 </template>
 
@@ -203,7 +191,13 @@ export default {
       arr.push(img)
       return arr
     },
-    borrowBook(bookId, bookName) {
+    borrowBook(row) {
+      if (row.nums <= 0) {
+        this.$message.error('库存不足！')
+        return
+      }
+      let bookId = row.id
+      let bookName = row.name
       this.$confirm('确认借阅《' + bookName +'》吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -212,8 +206,10 @@ export default {
         this.request.post('/book/borrowBook/' + bookId + "/" + this.user.id).then(res => {
           if (res.code === '200') {
             this.$message.success("借阅成功")
+            this.load()
           } else {
-            this.$message.success(res.msg)
+            this.$message.error(res.msg)
+            this.load()
           }
         })
       }).catch(() => {

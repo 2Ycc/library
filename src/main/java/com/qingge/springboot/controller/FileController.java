@@ -23,6 +23,7 @@ import java.util.List;
 
 /**
  * 文件上传相关接口
+ * @author closer
  */
 @RestController
 @RequestMapping("/file")
@@ -33,9 +34,6 @@ public class FileController {
 
     @Value("${server.ip}")
     private String serverIp;
-
-    @Value("${files.upload.bookpath}")
-    private String bookPath;
 
     @Resource
     private FileMapper fileMapper;

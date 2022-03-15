@@ -105,7 +105,7 @@ setRoutes()
 router.beforeEach((to, from, next) => {
   localStorage.setItem("currentPathName", to.name)  // 设置当前的路由名称
   store.commit("setPath")
-
+  document.title = '图书管理系统'
   // 未找到路由的情况
   if (!to.matched.length) {
     const storeMenus = localStorage.getItem("menus")

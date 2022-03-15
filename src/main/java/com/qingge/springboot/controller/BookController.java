@@ -105,7 +105,7 @@ public class BookController {
 
     @PostMapping("/borrowBook/{bookId}/{userId}")
     public Result borrowBook(@PathVariable Integer bookId, @PathVariable Integer userId) {
-        return Result.success(bookService.borrowBook(bookId, userId));
+        return bookService.borrowBook(bookId, userId);
     }
 
 }

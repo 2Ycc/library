@@ -1,5 +1,6 @@
 package com.qingge.springboot.service;
 
+import com.qingge.springboot.common.Result;
 import com.qingge.springboot.entity.Book;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,5 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IBookService extends IService<Book> {
 
-    Book borrowBook(Integer bookId, Integer userId);
+    Result borrowBook(Integer bookId, Integer userId);
 }

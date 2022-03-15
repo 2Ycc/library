@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import com.baomidou.mybatisplus.annotation.Version;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -57,5 +60,9 @@ public class Book implements Serializable {
 
       @ApiModelProperty("图书封面")
       private String img;
+
+      @JsonIgnore
+      @Version
+      private Integer version;
 
 }
