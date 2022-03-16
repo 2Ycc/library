@@ -1,5 +1,6 @@
 package com.qingge.springboot.service.impl;
 
+import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -39,7 +40,7 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements IB
         QueryWrapper<Record> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("book_id", bookId);
         queryWrapper.eq("user_id", userId);
-        queryWrapper.eq("if_return", 0);
+        queryWrapper.eq("status", 0);
         queryWrapper.getSqlSelect();
         Record records = recordMapper.selectOne(queryWrapper);
         if (!ObjectUtil.isNull(records)) {
@@ -51,7 +52,7 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements IB
         int nums = book.getNums();
         if (nums > 0) {
             //封装借书记录实体类
-            Record bookRecord = new Record(userId,bookId,LocalDate.now(),LocalDate.now().plusMonths(2L),false);
+            Record bookRecord = new Record(UUID.randomUUID().toString(),userId,bookId,LocalDate.now(),LocalDate.now().plusMonths(2L),0,0);
             try {
                 int res = recordMapper.insert(bookRecord);
                 if ( res > 0) {

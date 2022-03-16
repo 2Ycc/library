@@ -1,7 +1,9 @@
 server:
   ip: localhost
   port: 9090
-
+  servlet:
+    encoding:
+      charset: utf-8
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

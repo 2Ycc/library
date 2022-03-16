@@ -10,4 +10,12 @@ public interface Constants {
 
     String DICT_TYPE_ICON = "icon";
 
+    // 借阅记录状态
+    Integer RETURNED = 0;
+    Integer IN_BORROWING = 1;
+    Integer EXPIRED = 2;
+
+    // 续借状态
+    Integer NO_RENEW = 0;
+    Integer HAVE_RENEWED = 1;
 }

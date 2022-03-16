@@ -26,19 +26,24 @@ public class Record implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-      @ApiModelProperty("用户ID")
-        private Integer userId;
+    @ApiModelProperty("借阅记录ID")
+    private String id;
 
-      @ApiModelProperty("图书ID")
-        private Integer bookId;
+    @ApiModelProperty("用户ID")
+      private Integer userId;
 
-      @ApiModelProperty("借书时间")
-      private LocalDate borrowTime;
+    @ApiModelProperty("图书ID")
+      private Integer bookId;
 
-      @ApiModelProperty("到期时间")
-      private LocalDate expireTime;
+    @ApiModelProperty("借书时间")
+    private LocalDate borrowTime;
 
-      @ApiModelProperty("是否已归还")
-      private Boolean ifReturn;
+    @ApiModelProperty("到期时间")
+    private LocalDate expireTime;
 
+    @ApiModelProperty("借阅记录状态：1-是 0-否 2-逾期")
+    private Integer status;
+
+    @ApiModelProperty("是否续借：0-未续借 1：已续借")
+    private Integer renew;
 }
