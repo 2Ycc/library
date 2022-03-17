@@ -244,4 +244,40 @@ INSERT INTO `sys_user` VALUES (28, 'ddd', '123', 'ddd', '', '', '', '2022-11-09 
 INSERT INTO `sys_user` VALUES (29, 'ffff', '123', NULL, NULL, NULL, NULL, '2022-12-10 11:53:31', NULL, 'ROLE_STUDENT');
 INSERT INTO `sys_user` VALUES (30, '123', '123', NULL, NULL, NULL, NULL, '2022-03-11 16:45:06', NULL, 'ROLE_USER');
 
+-- ----------------------------
+-- Table structure for t_book
+-- ----------------------------
+DROP TABLE IF EXISTS `t_book`;
+CREATE TABLE `t_book` (
+    `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '图书ID',
+    `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '书名',
+    `isbn` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'ISBN码',
+    `author` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '作者',
+    `publisher` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '出版社',
+    `publish_time` date DEFAULT NULL COMMENT '出版时间',
+    `create_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '上架时间',
+    `nums` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '馆藏数量',
+    `status` tinyint(1) DEFAULT '1' COMMENT '图书状态：1-上架 0-下架',
+    `img` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '图书封面',
+    `version` int(11) DEFAULT '1' COMMENT '乐观锁',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------
+-- Table structure for t_record
+-- ----------------------------
+DROP TABLE IF EXISTS `t_record`;
+CREATE TABLE `t_record` (
+    `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '借书记录id',
+    `user_id` int(11) NOT NULL COMMENT '用户ID',
+    `book_id` int(11) NOT NULL COMMENT '图书ID',
+    `borrow_time` date DEFAULT NULL COMMENT '借书时间',
+    `expire_time` date DEFAULT NULL COMMENT '到期时间',
+    `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
+    `status` tinyint(1) DEFAULT '0' COMMENT '借阅记录状态：1-已还 0-未还 2-逾期',
+    `renew` tinyint(1) DEFAULT NULL COMMENT '是否续借：0-未续借 1：已续借',
+    `return_time` datetime DEFAULT NULL COMMENT '还书时间',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

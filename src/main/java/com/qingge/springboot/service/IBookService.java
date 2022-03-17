@@ -14,5 +14,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IBookService extends IService<Book> {
 
-    Result borrowBook(Integer bookId, Integer userId);
+    Result borrowBook(Integer bookId);
+
+    Result returnBook(Integer bookId);
 }

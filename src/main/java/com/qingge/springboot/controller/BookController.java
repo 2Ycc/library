@@ -105,7 +105,17 @@ public class BookController {
 
     @PostMapping("/borrowBook/{bookId}/{userId}")
     public Result borrowBook(@PathVariable Integer bookId, @PathVariable Integer userId) {
-        return bookService.borrowBook(bookId, userId);
+        return bookService.borrowBook(bookId);
+    }
+
+    /**
+     * 还书
+     * @author clsoer
+     * @date
+     */
+    @PutMapping("/returnBook/{bookId}")
+    public Result returnBook(@PathVariable Integer bookId) {
+        return bookService.returnBook(bookId);
     }
 
 }

@@ -58,12 +58,17 @@ public class RecordController {
     }
 
     @GetMapping("/page")
-    public Result findPage(@RequestParam Integer pageNum,
-                                @RequestParam Integer pageSize) {
-        QueryWrapper<Record> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByDesc("id");
-        return Result.success(recordService.page(new Page<>(pageNum, pageSize), queryWrapper));
+    public Result findPage( @RequestParam String bookName,
+                            @RequestParam Integer pageNum,
+                            @RequestParam Integer pageSize) {
+        return recordService.findAllPage(bookName,pageNum,pageSize);
     }
+
+    @GetMapping("/renewBorrow/{recordId}")
+    public Result renewBorrow( @PathVariable String recordId) {
+        return recordService.renewBorrow(recordId);
+    }
+
 
 }
 
