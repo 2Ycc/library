@@ -2,4 +2,5 @@
 
 ## 技术栈
 
-SpringBoot2 + Vue2 + ElementUI + Axios + Hutool + Mysql
+SpringBoot2 + Vue2 + ElementUI + Axios + Hutool + Mysql +
+Spring Boot定时任务

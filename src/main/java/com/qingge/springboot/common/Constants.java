@@ -11,8 +11,8 @@ public interface Constants {
     String DICT_TYPE_ICON = "icon";
 
     // 借阅记录状态
-    Integer RETURNED = 0;
-    Integer IN_BORROWING = 1;
+    Integer RETURNED = 1;
+    Integer IN_BORROWING = 0;
     Integer EXPIRED = 2;
 
     // 续借状态
