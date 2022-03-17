@@ -33,7 +33,7 @@
       </el-table-column>
       <el-table-column prop="img" label="封面">
         <template v-slot="scope">
-          <el-image :src="scope.row.img" :preview-src-list="toImgArray(scope.row.img)" alt="书籍封面" width="90" height="90"/>
+          <el-image :src="scope.row.img" :preview-src-list="toImgArray(scope.row.img)" alt="书籍封面" width="50" height="50"/>
         </template>
       </el-table-column>
       <el-table-column prop="isbn" label="ISBN码"></el-table-column>
@@ -42,19 +42,18 @@
       <el-table-column prop="borrowTime" width="120" label="借阅时间"></el-table-column>
       <el-table-column prop="expireTime" label="到期时间"></el-table-column>
       <el-table-column prop="status" label="借阅状态" align="center">
-
-<!--        <template slot-scope="scope">-->
         <template v-slot="scope">
           <el-tag type="success" v-if="scope.row.status === '未还'">借阅中</el-tag>
           <el-tag type="danger" v-if="scope.row.status === '逾期'">逾期</el-tag>
           <el-tag type="info" v-if="scope.row.status === '已还'">已还</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="lastDay" label="剩余天数" align="center"></el-table-column>
-<!--        <template v-slot="scope">-->
-<!--          <span v-if="scope.row.status === '已还'">0</span>-->
-<!--          <span v-else>{{ lastDay }}}</span>-->
-<!--        </template>-->
+      <el-table-column prop="lastDay" label="剩余天数" align="center">
+          <template v-slot="scope">
+            <span v-if="scope.row.status === '已还'">0</span>
+            <span v-else>{{ scope.row.lastDay }}</span>
+          </template>
+      </el-table-column>
       <el-table-column label="操作" width="250" align="center">
         <template slot-scope="scope">
           <el-button type="primary" @click="renewBook(scope.row)">续借 <i class="el-icon-info"></i></el-button>
@@ -65,7 +64,7 @@
               icon="el-icon-info"
               icon-color="red"
               title="您确定归还吗？"
-              @confirm="del(scope.row.id)"
+              @confirm="returnBook(scope.row.bookId)"
           >
             <el-button type="danger" slot="reference">还书 <i class="el-icon-remove-outline"></i></el-button>
           </el-popconfirm>
@@ -216,9 +215,9 @@ export default {
     },
     load() {
       let url = '/record/page';
-      if (this.user.role === 'ROLE_ADMIN') {
-        url = '/record/page'
-      }
+      // if (this.user.role === 'ROLE_ADMIN') {
+      //   url = '/record/page'
+      // }
       this.request.get(url, {
         params: {
           pageNum: this.pageNum,
@@ -258,16 +257,15 @@ export default {
       this.form = JSON.parse(JSON.stringify(row))
       this.dialogFormVisible = true
     },
-    del(id) {
-      this.$message.success('还书按钮被点击')
-      // this.request.delete("/book/" + id).then(res => {
-      //   if (res.code === '200') {
-      //     this.$message.success("删除成功")
-      //     this.load()
-      //   } else {
-      //     this.$message.error("删除失败")
-      //   }
-      // })
+    returnBook(bookId) {
+      this.request.put("/book/returnBook/" + bookId).then(res => {
+        if (res.code === '200') {
+          this.$message.success("还书成功")
+          this.load()
+        } else {
+          this.$message.error(res.msg)
+        }
+      })
     },
     handleSelectionChange(val) {
       console.log(val)

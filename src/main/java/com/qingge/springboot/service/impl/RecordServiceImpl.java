@@ -52,6 +52,10 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
         queryWrapper.eq("id", recordId);
         Record record = recordMapper.selectOne(queryWrapper);
         LocalDate expireTime = record.getExpireTime();
+        //判断如果已经续归还，则不让续借
+        if ( Constants.RETURNED.equals(record.getStatus()) ) {
+            return new Result("10008","本书已经归还，请重新借书！","");
+        }
         //判断如果逾期31天以上，则不让续借，提醒归还
         if ( expireTime.plusDays(31).isBefore(LocalDate.now()) ) {
             return new Result("10006","逾期超过一个月，速请归还图书！","");

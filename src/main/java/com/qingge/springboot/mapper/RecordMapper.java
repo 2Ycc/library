@@ -61,6 +61,11 @@ public interface RecordMapper extends BaseMapper<Record> {
             "</script>")
     int changeMode(@Param("records") List<Record> records);
 
-    @Select("select * from t_record where DATEDIFF(expire_time,CURRENT_TIMESTAMP) < 0 and `status` <> 2")
+    /**
+     * 查询已经逾期并且未归还的书籍
+     * @author closer
+     * @date
+     */
+    @Select("select * from t_record where DATEDIFF(expire_time,CURRENT_TIMESTAMP) < 0 and `status` = 0")
     List<Record> getAllShouldChangedRecords();
 }
