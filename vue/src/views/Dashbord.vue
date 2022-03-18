@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div><h1>common</h1>
     <el-row :gutter="10" style="margin-bottom: 60px">
       <el-col :span="6">
         <el-card style="color: #409EFF">

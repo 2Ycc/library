@@ -1,15 +1,12 @@
 <template>
-  <div><h1>common</h1>
+  <div><h1>admin</h1>
     <div style="margin: 10px 0">
       <el-input style="width: 200px" placeholder="请输入名称" suffix-icon="el-icon-search" v-model="name"></el-input>
       <el-button class="ml-5" type="primary" @click="load">搜索</el-button>
       <el-button type="warning" @click="reset">重置</el-button>
     </div>
     <div style="margin: 10px 0">
-      <el-upload :action="'http://' + serverIp + ':9090/file/upload'" :show-file-list="false"
-                 :on-success="handleFileUploadSuccess" style="display: inline-block">
-        <el-button type="primary" class="ml-5">上传文件 <i class="el-icon-top"></i></el-button>
-      </el-upload>
+      <el-button type="primary" @click="handleAdd" v-if="user.role === 'ROLE_ADMIN'">新增 <i class="el-icon-circle-plus-outline"></i></el-button>
       <el-popconfirm
           class="ml-5"
           confirm-button-text='确定'
@@ -19,7 +16,7 @@
           title="您确定批量删除这些数据吗？"
           @confirm="delBatch"
       >
-        <el-button type="danger" slot="reference">批量删除 <i class="el-icon-remove-outline"></i></el-button>
+        <el-button type="danger" slot="reference" v-if="user.role === 'ROLE_ADMIN'">批量删除 <i class="el-icon-remove-outline"></i></el-button>
       </el-popconfirm>
 
     </div>
@@ -27,27 +24,20 @@
               @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column prop="id" label="ID" width="80"></el-table-column>
-      <el-table-column prop="name" label="文件名称"></el-table-column>
-      <el-table-column prop="type" label="文件类型"></el-table-column>
-      <el-table-column prop="size" label="文件大小(kb)"></el-table-column>
-      <el-table-column label="预览">
-        <template slot-scope="scope">
-          <el-button type="primary" @click="preview(scope.row.url)">预览</el-button>
-        </template>
-      </el-table-column>
-      <el-table-column label="下载">
-        <template slot-scope="scope">
-          <el-button type="primary" @click="download(scope.row.url)">下载</el-button>
-        </template>
-      </el-table-column>
+      <el-table-column prop="name" label="课程名称"></el-table-column>
+      <el-table-column prop="score" label="文件类型"></el-table-column>
+      <el-table-column prop="times" label="课时"></el-table-column>
+      <el-table-column prop="teacher" label="授课老师"></el-table-column>
       <el-table-column label="启用">
         <template slot-scope="scope">
-          <el-switch v-model="scope.row.enable" active-color="#13ce66" inactive-color="#ccc"
+          <el-switch v-model="scope.row.state" active-color="#13ce66" inactive-color="#ccc"
                      @change="changeEnable(scope.row)"></el-switch>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="200" align="center">
+      <el-table-column label="操作" width="280" align="center">
         <template slot-scope="scope">
+          <el-button type="primary" @click="selectCourse(scope.row.id)">选课</el-button>
+          <el-button type="success" @click="handleEdit(scope.row)" v-if="user.role === 'ROLE_ADMIN'">编辑 <i class="el-icon-edit"></i></el-button>
           <el-popconfirm
               class="ml-5"
               confirm-button-text='确定'
@@ -57,7 +47,7 @@
               title="您确定删除吗？"
               @confirm="del(scope.row.id)"
           >
-            <el-button type="danger" slot="reference">删除 <i class="el-icon-remove-outline"></i></el-button>
+            <el-button type="danger" slot="reference" v-if="user.role === 'ROLE_ADMIN'">删除 <i class="el-icon-remove-outline"></i></el-button>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -75,31 +65,65 @@
       </el-pagination>
     </div>
 
+    <el-dialog title="课程信息" :visible.sync="dialogFormVisible" width="30%" >
+      <el-form label-width="80px" size="small">
+        <el-form-item label="名称">
+          <el-input v-model="form.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="学分">
+          <el-input v-model="form.score" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="课时">
+          <el-input v-model="form.times" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="老师">
+          <el-select clearable v-model="form.teacherId" placeholder="请选择">
+            <el-option v-for="item in teachers" :key="item.id" :label="item.nickname" :value="item.id"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="save">确 定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
-import {serverIp} from "../../public/config";
 
 export default {
-  name: "File",
+  name: "Course",
   data() {
     return {
-      serverIp: serverIp,
+      form: {},
       tableData: [],
       name: '',
       multipleSelection: [],
       pageNum: 1,
       pageSize: 10,
-      total: 0
+      total: 0,
+      dialogFormVisible: false,
+      teachers: [],
+      user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {}
     }
   },
   created() {
     this.load()
   },
   methods: {
+    selectCourse(courseId) {
+      this.request.post('/course/studentCourse/' + courseId + "/" + this.user.id).then(res => {
+        if (res.code === '200') {
+          this.$message.success("选课成功")
+        } else {
+          this.$message.success(res.msg)
+        }
+      })
+    },
     load() {
-      this.request.get("/file/page", {
+      this.request.get("/course/page", {
         params: {
           pageNum: this.pageNum,
           pageSize: this.pageSize,
@@ -111,16 +135,28 @@ export default {
         this.total = res.data.total
 
       })
+
+      this.request.get("/user/role/ROLE_TEACHER").then(res => {
+        this.teachers = res.data
+      })
     },
     changeEnable(row) {
-      this.request.post("/file/update", row).then(res => {
+      this.request.post("/course/update", row).then(res => {
         if (res.code === '200') {
           this.$message.success("操作成功")
         }
       })
     },
+    handleAdd() {
+      this.dialogFormVisible = true
+      this.form = {}
+    },
+    handleEdit(row) {
+      this.form = JSON.parse(JSON.stringify(row))
+      this.dialogFormVisible = true
+    },
     del(id) {
-      this.request.delete("/file/" + id).then(res => {
+      this.request.delete("/course/" + id).then(res => {
         if (res.code === '200') {
           this.$message.success("删除成功")
           this.load()
@@ -135,12 +171,23 @@ export default {
     },
     delBatch() {
       let ids = this.multipleSelection.map(v => v.id)  // [{}, {}, {}] => [1,2,3]
-      this.request.post("/file/del/batch", ids).then(res => {
+      this.request.post("/course/del/batch", ids).then(res => {
         if (res.code === '200') {
           this.$message.success("批量删除成功")
           this.load()
         } else {
           this.$message.error("批量删除失败")
+        }
+      })
+    },
+    save() {
+      this.request.post("/course", this.form).then(res => {
+        if (res.code === '200') {
+          this.$message.success("保存成功")
+          this.dialogFormVisible = false
+          this.load()
+        } else {
+          this.$message.error("保存失败")
         }
       })
     },
@@ -158,16 +205,8 @@ export default {
       this.pageNum = pageNum
       this.load()
     },
-    handleFileUploadSuccess(res) {
-      console.log(res)
-      this.$message.success("上传成功")
-      this.load()
-    },
     download(url) {
       window.open(url)
-    },
-    preview(url) {
-      window.open('https://file.keking.cn/onlinePreview?url=' + encodeURIComponent(window.btoa((url))))
     },
   }
 }

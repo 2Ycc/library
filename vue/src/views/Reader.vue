@@ -1,5 +1,5 @@
-Course.vue<template>
-  <div>
+<template>
+  <div><h1>common</h1>
     <div style="margin: 10px 0">
       <el-input style="width: 200px" placeholder="请输入名称" suffix-icon="el-icon-search" v-model="name"></el-input>
       <el-button class="ml-5" type="primary" @click="load">搜索</el-button>

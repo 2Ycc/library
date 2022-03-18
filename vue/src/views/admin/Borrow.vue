@@ -1,10 +1,12 @@
 <template>
-  <div><h1>common</h1>
-    return
+  <div><h1>admin</h1>
+    Borrow
   </div>
 </template>
 
 <script>
+
+
 
 </script>
 

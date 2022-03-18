@@ -1,5 +1,5 @@
 <template>
-  <div><h1>common</h1>
+  <div><h1>manager</h1>
     return
   </div>
 </template>

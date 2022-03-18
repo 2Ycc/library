@@ -1,66 +1,72 @@
 <template>
-  <div><h1>common</h1>
+  <div><h1>admin</h1>
     <div style="margin: 10px 0">
       <el-input style="width: 200px" placeholder="请输入名称" suffix-icon="el-icon-search" v-model="name"></el-input>
       <el-button class="ml-5" type="primary" @click="load">搜索</el-button>
       <el-button type="warning" @click="reset">重置</el-button>
     </div>
     <div style="margin: 10px 0">
-      <el-button type="primary" @click="handleAdd" v-if="user.role === 'ROLE_ADMIN'">新增 <i class="el-icon-circle-plus-outline"></i></el-button>
+<!--      <el-button type="primary" @click="handleAdd" v-if="user.role === 'ROLE_ADMIN'">新增 <i class="el-icon-circle-plus-outline"></i></el-button>-->
       <el-popconfirm
           class="ml-5"
           confirm-button-text='确定'
           cancel-button-text='我再想想'
           icon="el-icon-info"
           icon-color="red"
-          title="您确定批量删除这些图书吗？"
+          title="您确定批量归还这些图书吗？"
           @confirm="delBatch"
       >
-        <el-button type="danger" slot="reference" v-if="user.role === 'ROLE_ADMIN'">批量删除 <i class="el-icon-remove-outline"></i></el-button>
+        <el-button type="danger" slot="reference">批量归还 <i class="el-icon-remove-outline"></i></el-button>
       </el-popconfirm>
 
     </div>
-    <el-table :data="tableData" border stripe :header-cell-class-name="'headerBg'" style="font-size: 14px;"
+    <el-table :data="tableData" border stripe
+              :header-cell-class-name="'headerBg'"
+              style="font-size: 14px;"
               @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" v-if="user.role === 'ROLE_ADMIN'"></el-table-column>
-      <el-table-column prop="id" label="图书ID" width="80" v-if="user.role === 'ROLE_ADMIN'"></el-table-column>
-      <el-table-column prop="name" label="书名">
+      <el-table-column type="selection" width="55"></el-table-column>
+      <el-table-column type="index" label="序号" width="80"></el-table-column>
+      <el-table-column prop="bookName" label="书名">
         <template slot-scope="scope">
-          <span style="font-size: 15px;">《{{ scope.row.name }}》</span>
+          <span style="font-size: 15px;">《{{ scope.row.bookName }}》</span>
         </template>
       </el-table-column>
       <el-table-column prop="img" label="封面">
         <template v-slot="scope">
-          <el-image :src="scope.row.img" :preview-src-list="toImgArray(scope.row.img)" alt="书籍封面" width="90" height="90"/>
-
+          <el-image :src="scope.row.img" :preview-src-list="toImgArray(scope.row.img)" alt="书籍封面" width="50" height="50"/>
         </template>
       </el-table-column>
       <el-table-column prop="isbn" label="ISBN码"></el-table-column>
       <el-table-column prop="author" label="作者"></el-table-column>
       <el-table-column prop="publisher" label="出版社"></el-table-column>
-      <el-table-column prop="publishTime" width="120" label="出版时间"></el-table-column>
-      <el-table-column prop="createTime" label="上架时间"></el-table-column>
-      <el-table-column prop="nums" width="120" label="剩余馆藏数量" align="center"></el-table-column>
-      <el-table-column label="启用" width="70" v-if="user.role === 'ROLE_ADMIN'">
-        <template slot-scope="scope">
-          <el-switch v-model="scope.row.status" active-color="#13ce66" inactive-color="#ccc"
-                     @change="changeEnable(scope.row)"></el-switch>
+      <el-table-column prop="borrowTime" width="120" label="借阅时间"></el-table-column>
+      <el-table-column prop="expireTime" label="到期时间"></el-table-column>
+      <el-table-column prop="status" label="借阅状态" align="center">
+        <template v-slot="scope">
+          <el-tag type="success" v-if="scope.row.status === '未还'">借阅中</el-tag>
+          <el-tag type="danger" v-if="scope.row.status === '逾期'">逾期</el-tag>
+          <el-tag type="info" v-if="scope.row.status === '已还'">已还</el-tag>
         </template>
+      </el-table-column>
+      <el-table-column prop="lastDay" label="剩余天数" align="center">
+          <template v-slot="scope">
+            <span v-if="scope.row.status === '已还'">0</span>
+            <span v-else>{{ scope.row.lastDay }}</span>
+          </template>
       </el-table-column>
       <el-table-column label="操作" width="250" align="center">
         <template slot-scope="scope">
-          <el-button type="primary" @click="borrowBook(scope.row)">借阅</el-button>
-          <el-button type="success" @click="handleEdit(scope.row)" v-if="user.role === 'ROLE_ADMIN'">编辑 <i class="el-icon-edit"></i></el-button>
+          <el-button type="primary" @click="renewBook(scope.row)">续借 <i class="el-icon-info"></i></el-button>
           <el-popconfirm
               class="ml-5"
               confirm-button-text='确定'
               cancel-button-text='我再想想'
               icon="el-icon-info"
               icon-color="red"
-              title="您确定删除吗？"
-              @confirm="del(scope.row.id)"
+              title="您确定归还吗？"
+              @confirm="returnBook(scope.row.bookId)"
           >
-            <el-button type="danger" slot="reference" v-if="user.role === 'ROLE_ADMIN'">删除 <i class="el-icon-remove-outline"></i></el-button>
+            <el-button type="danger" slot="reference">还书 <i class="el-icon-remove-outline"></i></el-button>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -88,16 +94,8 @@
           </el-input>
         </el-form-item>
         <el-form-item label="封面" prop="img">
-          <el-upload
-              class="avatar-uploader"
-              :action="'http://' + serverIp +':9090/file/upload'"
-              :show-file-list="false"
-              :before-upload="beforeAvatarUpload"
-              :on-success="handleAvatarSuccess"
-          >
-            <img v-if="form.img" :src="form.img" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-          </el-upload>
+            <img :src="form.img" class="avatar">
+            <i class="el-icon-plus avatar-uploader-icon"></i>
         </el-form-item>
 
         <el-form-item label="ISBN码" prop="isbn">
@@ -136,9 +134,9 @@
 </template>
 
 <script>
-import {serverIp} from "../../public/config";
+import {serverIp} from "../../../public/config";
 export default {
-  name: "Book",
+  name: "Record",
   data() {
     return {
       form: {
@@ -191,22 +189,17 @@ export default {
       arr.push(img)
       return arr
     },
-    borrowBook(row) {
-      if (row.nums <= 0) {
-        this.$message.error('库存不足！')
-        return
-      }
-      let bookId = row.id
-      let bookName = row.name
-      console.log("userId:"+this.user.id,"bookId:"+bookId)
-      this.$confirm('确认借阅《' + bookName +'》吗？', '提示', {
+    renewBook(row) {
+      let recordId = row.recordId
+      let bookName = row.bookName
+      this.$confirm('仅能续借一个月，确认续借《' + bookName +'》吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'success'
       }).then(() => {
-        this.request.post('/book/borrowBook/' + bookId + "/" + this.user.id).then(res => {
+        this.request.get('/record/renewBorrow/' + recordId).then(res => {
           if (res.code === '200') {
-            this.$message.success("借阅成功")
+            this.$message.success("续借成功")
             this.load()
           } else {
             this.$message.error(res.msg)
@@ -216,20 +209,20 @@ export default {
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: '已取消借阅'
+          message: '已取消续借'
         });
       });
     },
     load() {
-      let url = '/book/enableBooks';
-      if (this.user.role === 'ROLE_ADMIN') {
-        url = '/book/page'
-      }
+      let url = '/record/page';
+      // if (this.user.role === 'ROLE_ADMIN') {
+      //   url = '/record/page'
+      // }
       this.request.get(url, {
         params: {
           pageNum: this.pageNum,
           pageSize: this.pageSize,
-          name: this.name,
+          bookName: this.name,
         }
       }).then(res => {
         this.tableData = res.data.records
@@ -264,13 +257,13 @@ export default {
       this.form = JSON.parse(JSON.stringify(row))
       this.dialogFormVisible = true
     },
-    del(id) {
-      this.request.delete("/book/" + id).then(res => {
+    returnBook(bookId) {
+      this.request.put("/book/returnBook/" + bookId).then(res => {
         if (res.code === '200') {
-          this.$message.success("删除成功")
+          this.$message.success("还书成功")
           this.load()
         } else {
-          this.$message.error("删除失败")
+          this.$message.error(res.msg)
         }
       })
     },
@@ -345,7 +338,18 @@ export default {
         this.$message.error('上传头像图片大小不能超过 2MB!');
       }
       return isJPG && isLt2M;
-    }
+    },
+    // timeDiff(row) {
+    //   let borrowTime = row.borrowTime;
+    //   let expireTime = row.expireTime;
+    //   let now = new Date();
+    //   let expTime = new Date(expireTime);
+    //   if (date.getTime() < expTime.getTime()) {
+    //     return '逾期'
+    //   } else {
+    //     return '未逾期'
+    //   }
+    // },
   }
 }
 </script>
@@ -373,5 +377,13 @@ export default {
   width: 178px;
   height: 178px;
   display: block;
+}
+
+.el-table .warning-row {
+  background: #ebd2d2;
+}
+
+.el-table .success-row {
+  background: #568043;
 }
 </style>

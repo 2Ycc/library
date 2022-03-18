@@ -1,5 +1,5 @@
 <template>
-  <el-card style="width: 500px;"><h1>common</h1>
+  <el-card style="width: 500px;"><h1>admin</h1>
     <el-form label-width="80px" size="small">
       <el-upload
           class="avatar-uploader"
@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import {serverIp} from "../../public/config";
+import {serverIp} from "../../../public/config";
 
 export default {
   name: "Person",

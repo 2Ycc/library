@@ -1,5 +1,5 @@
 <template>
-  <div style="color: #666;font-size: 14px;"><h1>common</h1>
+  <div style="color: #666;font-size: 14px;"><h1>admin</h1>
     <div style="padding-bottom: 20px">
       <b>欢迎你！{{ user.nickname }}</b>
     </div>
