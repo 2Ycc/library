@@ -52,7 +52,7 @@ export default {
               setRoutes()
               this.$message.success("登录成功")
 
-              if (res.data.role === 'ROLE_STUDENT') {
+              if (res.data.role === 'ROLE_READER') {
                 // this.$router.push("/front/home")
                 this.$router.push("/")
               } else {

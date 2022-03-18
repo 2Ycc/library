@@ -42,6 +42,14 @@
       <el-table-column prop="email" label="邮箱"></el-table-column>
       <el-table-column prop="phone" label="电话"></el-table-column>
       <el-table-column prop="address" label="地址"></el-table-column>
+      <el-table-column prop="credit" label="信用分数"></el-table-column>
+<!--      <el-table-column prop="baned" label="禁止登录"></el-table-column>-->
+      <el-table-column label="禁止登录">
+        <template slot-scope="scope">
+          <el-switch v-model="scope.row.baned" active-color="#13ce66" inactive-color="#ccc"></el-switch>
+<!--                     @change="changeEnable(scope.row)"></el-switch>-->
+        </template>
+      </el-table-column>
       <el-table-column label="操作"  width="500" align="center">
         <template slot-scope="scope">
           <el-button type="primary" @click="lookCourse(scope.row.courses)" v-if="scope.row.role === 'ROLE_TEACHER'">查看教授课程 <i class="el-icon-document"></i></el-button>

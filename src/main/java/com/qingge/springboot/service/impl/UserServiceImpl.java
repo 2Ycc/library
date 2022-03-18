@@ -1,6 +1,7 @@
 package com.qingge.springboot.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.log.Log;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -54,7 +55,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Override
     public UserDTO login(UserDTO userDTO) {
         User one = getUserInfo(userDTO);
-        if (one != null) {
+        if (one.getBaned()) {
+            throw new ServiceException(Constants.CODE_700, "该用户已被禁止登录");
+        }
+        if (ObjectUtil.isNotNull(one)) {
             BeanUtil.copyProperties(one, userDTO, true);
             // 设置token
             String token = TokenUtils.genToken(one.getId().toString(), one.getPassword());

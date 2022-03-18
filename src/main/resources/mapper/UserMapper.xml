@@ -9,6 +9,8 @@
         <result column="email" property="email" />
         <result column="phone" property="phone" />
         <result column="address" property="address" />
+        <result column="credit" property="credit" />
+        <result column="baned" property="baned" />
         <result column="create_time" property="createTime" />
         <result column="avatar_url" property="avatarUrl" />
         <result column="role" property="role" />
