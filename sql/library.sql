@@ -11,7 +11,7 @@
  Target Server Version : 50735
  File Encoding         : 65001
 
- Date: 18/03/2022 16:10:45
+ Date: 18/03/2022 17:51:32
 */
 
 SET NAMES utf8mb4;
@@ -135,14 +135,14 @@ CREATE TABLE `sys_menu`  (
 -- ----------------------------
 INSERT INTO `sys_menu` VALUES (2, '数据报表', '/dashbord', 'el-icon-s-marketing', '11', NULL, 'Dashbord', 100);
 INSERT INTO `sys_menu` VALUES (4, '系统管理', NULL, 'el-icon-s-grid', NULL, NULL, NULL, 900);
-INSERT INTO `sys_menu` VALUES (5, '用户管理', '/user', 'el-icon-user', NULL, 4, 'User', 301);
+INSERT INTO `sys_menu` VALUES (5, '用户管理', '/user', 'el-icon-user', NULL, 4, 'admin/User', 301);
 INSERT INTO `sys_menu` VALUES (6, '角色管理', '/role', 'el-icon-s-custom', NULL, 4, 'Role', 302);
 INSERT INTO `sys_menu` VALUES (7, '菜单管理', '/menu', 'el-icon-menu', NULL, 4, 'Menu', 303);
 INSERT INTO `sys_menu` VALUES (8, '文件管理', '/file', 'el-icon-document', NULL, 4, 'File', 304);
 INSERT INTO `sys_menu` VALUES (10, '主页', '/home', 'el-icon-house', NULL, NULL, 'Home', 0);
 INSERT INTO `sys_menu` VALUES (39, '课程管理', '/course', 'el-icon-menu', NULL, NULL, 'Course', 201);
 INSERT INTO `sys_menu` VALUES (40, '图书管理', '/book', 'el-icon-notebook-1', '管理员图书管理', NULL, 'admin/Book', 400);
-INSERT INTO `sys_menu` VALUES (41, '读者管理', '/reader', 'el-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solidel-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solid', '读者管理', NULL, 'Reader', 500);
+INSERT INTO `sys_menu` VALUES (41, '读者管理', '/reader', 'el-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solidel-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solid\r\nel-icon-user-solid', '读者管理', NULL, 'admin/Reader', 500);
 INSERT INTO `sys_menu` VALUES (42, '所有借阅记录', '/record', 'el-icon-s-order', '管理员查询所有借阅记录', NULL, 'admin/Record', 600);
 INSERT INTO `sys_menu` VALUES (46, 'admin主页', '/admin/home', 'el-icon-house', 'admin主页', NULL, 'admin/Home', 50);
 INSERT INTO `sys_menu` VALUES (47, '我的借阅记录', '/record', 'el-icon-s-order', '读者借阅记录', NULL, 'reader/Record', 601);
@@ -231,22 +231,24 @@ CREATE TABLE `sys_user`  (
                              `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                              `avatar_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '头像',
                              `role` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '角色',
+                             `credit` tinyint(4) NULL DEFAULT 100 COMMENT '信用积分：\r\n1、初始为100分，上限为100分；\r\n2、逾期一次扣10分；\r\n3、低于80分禁止借书；\r\n4、每个月的1号恢复10分；\r\n5、还书一次加5分。',
+                             `baned` tinyint(4) NULL DEFAULT 0 COMMENT '是否被禁用：0-未被禁用 1-被禁用',
                              PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'admin', 'admin', 'Closer', 'admin@qq.com', '1111111111111', 'hahahaha', '2022-01-22 21:10:27', 'http://localhost:9090/file/da8d48ac70c14cc38d3cb5b93f4b4496.jpg', 'ROLE_ADMIN');
-INSERT INTO `sys_user` VALUES (17, '333', '123', '我是三三哦豁', '3', '3', '3', '2022-02-26 22:10:18', 'http://localhost:9090/file/da8d48ac70c14cc38d3cb5b93f4b4496.jpg', 'ROLE_READER');
-INSERT INTO `sys_user` VALUES (18, 'nz', '123', '哪吒', '2', '2', '2', '2022-03-29 16:59:44', '', 'ROLE_READER');
-INSERT INTO `sys_user` VALUES (19, 'yss', '123', '亚瑟', '3', '3', '3', '2022-04-29 16:59:44', '', 'ROLE_READER');
-INSERT INTO `sys_user` VALUES (20, 'lx', '123', '李信', '2', '2', '2', '2022-05-29 17:12:04', '', 'ROLE_READER');
-INSERT INTO `sys_user` VALUES (25, 'sir', '123', '安琪拉', NULL, NULL, NULL, '2022-06-08 17:00:47', '', 'ROLE_BOOK_MANAGER');
-INSERT INTO `sys_user` VALUES (26, 'err', '123', '妲己', '11', '1', '1', '2022-07-08 17:20:01', '', 'ROLE_BOOK_MANAGER');
-INSERT INTO `sys_user` VALUES (28, 'ddd', '123', 'ddd', '', '', '', '2022-11-09 10:41:07', '', 'ROLE_READER');
-INSERT INTO `sys_user` VALUES (29, 'ffff', '123', NULL, NULL, NULL, NULL, '2022-12-10 11:53:31', '', 'ROLE_STUDENT');
-INSERT INTO `sys_user` VALUES (30, '123', '123', NULL, NULL, NULL, NULL, '2022-03-11 16:45:06', '', 'ROLE_USER');
+INSERT INTO `sys_user` VALUES (1, 'admin', 'admin', 'Closer', 'admin@qq.com', '1111111111111', 'hahahaha', '2022-01-22 21:10:27', 'http://localhost:9090/file/da8d48ac70c14cc38d3cb5b93f4b4496.jpg', 'ROLE_ADMIN', 100, 0);
+INSERT INTO `sys_user` VALUES (17, '333', '123', '我是三三哦豁', '3', '3', '3', '2022-02-26 22:10:18', 'http://localhost:9090/file/da8d48ac70c14cc38d3cb5b93f4b4496.jpg', 'ROLE_READER', 100, 0);
+INSERT INTO `sys_user` VALUES (18, 'nz', '123', '哪吒', '2', '2', '2', '2022-03-29 16:59:44', '', 'ROLE_READER', 100, 0);
+INSERT INTO `sys_user` VALUES (19, 'yss', '123', '亚瑟', '3', '3', '3', '2022-04-29 16:59:44', '', 'ROLE_READER', 100, 0);
+INSERT INTO `sys_user` VALUES (20, 'lx', '123', '李信', '2', '2', '2', '2022-05-29 17:12:04', '', 'ROLE_READER', 100, 0);
+INSERT INTO `sys_user` VALUES (25, 'sir', '123', '安琪拉', NULL, NULL, NULL, '2022-06-08 17:00:47', '', 'ROLE_BOOK_MANAGER', 100, 0);
+INSERT INTO `sys_user` VALUES (26, 'err', '123', '妲己', '11', '1', '1', '2022-07-08 17:20:01', '', 'ROLE_BOOK_MANAGER', 100, 0);
+INSERT INTO `sys_user` VALUES (28, 'ddd', '123', 'ddd', '', '', '', '2022-11-09 10:41:07', '', 'ROLE_READER', 100, 1);
+INSERT INTO `sys_user` VALUES (29, 'ffff', '123', NULL, NULL, NULL, NULL, '2022-12-10 11:53:31', '', 'ROLE_READER', 70, 0);
+INSERT INTO `sys_user` VALUES (30, '123', '123', NULL, NULL, NULL, NULL, '2022-03-11 16:45:06', '', 'ROLE_READER', 100, 0);
 
 -- ----------------------------
 -- Table structure for t_book
@@ -272,7 +274,7 @@ CREATE TABLE `t_book`  (
 -- ----------------------------
 INSERT INTO `t_book` VALUES (1, '123', '6464618646846', '测试', '出版社', '2022-03-16', '2022-03-16 16:48:30', '7', 1, 'http://localhost:9090/file/da8d48ac70c14cc38d3cb5b93f4b4496.jpg', 10);
 INSERT INTO `t_book` VALUES (2, 'Java编程基础', '1234563424234', '詹姆斯高斯林', 'Java出版社', '2022-03-15', '2022-03-17 11:44:30', '0', 1, 'http://localhost:9090/file/da8d48ac70c14cc38d3cb5b93f4b4496.jpg', 5);
-INSERT INTO `t_book` VALUES (7, '收手吧，阿祖', '1233333333333', 'cat', '出版社', '2022-03-15', '2022-03-17 15:43:16', '2', 1, 'http://localhost:9090/file/8b2338d556194eba8da3e00faae6f0de.jpg', 15);
+INSERT INTO `t_book` VALUES (7, '收手吧，阿祖', '1233333333333', 'cat', '出版社', '2022-03-15', '2022-03-17 15:43:16', '1', 1, 'http://localhost:9090/file/8b2338d556194eba8da3e00faae6f0de.jpg', 16);
 INSERT INTO `t_book` VALUES (8, '大耳朵图图', '1111111111111', 'niuniu', '出版社', '2022-03-16', '2022-03-17 15:43:14', '1', 1, 'http://localhost:9090/file/84efbae5735140e4bf63fdcd8463eebd.jpg', 18);
 INSERT INTO `t_book` VALUES (9, '猫猫问号', '1111111111111', '猫猫', '猫猫出版社', '2022-03-17', '2022-03-17 11:44:32', '0', 1, 'http://localhost:9090/file/2171b7d453d2446ea548ae71df0eb1e0.jpg', 4);
 INSERT INTO `t_book` VALUES (10, '测试', '1111111111111', '熊猫', '出版社', '2022-03-16', '2022-03-17 15:16:24', '3', 1, 'http://localhost:9090/file/ba2e0c9866ca499a93eaf06b7c618c0d.jpg', 9);
@@ -292,7 +294,7 @@ CREATE TABLE `t_record`  (
                              `renew` tinyint(1) NULL DEFAULT NULL COMMENT '是否续借：0-未续借 1：已续借',
                              `return_time` datetime NULL DEFAULT NULL COMMENT '还书时间',
                              PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of t_record
@@ -307,5 +309,6 @@ INSERT INTO `t_record` VALUES (7, 28, 8, '2022-03-18', '2022-06-18', '2022-03-18
 INSERT INTO `t_record` VALUES (8, 28, 8, '2022-03-18', '2022-05-18', '2022-03-18 11:12:07', 1, 0, '2022-03-18 16:05:08');
 INSERT INTO `t_record` VALUES (9, 28, 7, '2022-03-18', '2022-05-18', '2022-03-18 11:12:12', 1, 0, '2022-03-18 16:05:08');
 INSERT INTO `t_record` VALUES (10, 28, 8, '2022-03-18', '2022-05-18', '2022-03-18 16:07:07', 1, 0, '2022-03-18 16:07:20');
+INSERT INTO `t_record` VALUES (11, 28, 7, '2022-03-18', '2022-05-18', '2022-03-18 16:13:05', 0, 0, NULL);
 
 SET FOREIGN_KEY_CHECKS = 1;
