@@ -6,8 +6,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qingge.springboot.common.Result;
 import com.qingge.springboot.entity.Book;
 import com.qingge.springboot.entity.Record;
+import com.qingge.springboot.entity.User;
 import com.qingge.springboot.mapper.BookMapper;
 import com.qingge.springboot.mapper.RecordMapper;
+import com.qingge.springboot.mapper.UserMapper;
 import com.qingge.springboot.service.IBookService;
 import com.qingge.springboot.utils.TokenUtils;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,9 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements IB
     @Resource
     RecordMapper recordMapper;
 
+    @Resource
+    UserMapper userMapper;
+
     /**
      * 借书
      * @author ymy
@@ -47,6 +52,11 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements IB
     @Override
     public Result borrowBook(Integer bookId) {
         Integer userId = TokenUtils.getCurrentUser().getId();
+        //查询用户的信用积分是否大于80
+        User user = userMapper.selectById(userId);
+        if (Boolean.TRUE.equals(user.getBaned()) || user.getCredit() < 80) {
+            return new Result("500","当前用户信用积分低于80，禁止借书！",null);
+        }
         //查询是否已经借了此书
         QueryWrapper<Record> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("book_id", bookId);

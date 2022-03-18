@@ -204,7 +204,7 @@ export default {
         cancelButtonText: '取消',
         type: 'success'
       }).then(() => {
-        this.request.post('/book/borrowBook/' + bookId + "/" + this.user.id).then(res => {
+        this.request.post('/book/borrowBook/' + bookId).then(res => {
           if (res.code === '200') {
             this.$message.success("借阅成功")
             this.load()
