@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>
@@ -34,6 +36,13 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements IB
     @Resource
     RecordMapper recordMapper;
 
+    /**
+     * 借书
+     * @author ymy
+     * @date 2022/3/18 15:19
+     * @param bookId 书籍id
+     * @return com.qingge.springboot.common.Result
+     */
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Result borrowBook(Integer bookId) {
@@ -42,7 +51,6 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements IB
         QueryWrapper<Record> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("book_id", bookId);
         queryWrapper.eq("user_id", userId);
-//        queryWrapper.eq("status", 0);
         //状态不等于1，即仅筛选未还书籍记录
         queryWrapper.ne("status", 1);
         queryWrapper.getSqlSelect();
@@ -78,14 +86,21 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements IB
         }
     }
 
+    /**
+     * 还书
+     * @author ymy
+     * @date 2022/3/18 15:19
+     * @param recordId 借书记录id
+     * @return com.qingge.springboot.common.Result
+     */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Result returnBook(Integer bookId) {
+    public Result returnBook(Integer recordId) {
         //获取当前登录的用户id
         Integer userId = TokenUtils.getCurrentUser().getId();
         //查询是否已经借了此书
         QueryWrapper<Record> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("book_id", bookId);
+        queryWrapper.eq("id", recordId);
         queryWrapper.eq("user_id", userId);
         //状态不等于1，即仅筛选未还书籍记录
         queryWrapper.ne("status", 1);
@@ -95,7 +110,7 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements IB
             return Result.error("10007","此书不在您的借阅清单内，或已归还！");
         }
         //查询存书量与书籍信息
-        Book book = bookMapper.selectById(bookId);
+        Book book = bookMapper.selectById(records.getBookId());
         //当前库存
         int nums = book.getNums();
         //更改借阅记录状态为“已归还”
@@ -117,6 +132,28 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements IB
         } catch (Exception e) {
             e.printStackTrace();
             return new Result("500","还书失败",e.toString());
+        }
+    }
+
+    /**
+     * 批量还书
+     * @author closer
+     * @date 2022/3/18 15:20
+     * @param ids 书籍记录的id集合
+     * @return com.qingge.springboot.common.Result
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Result returnBookBatch(List<Integer> ids) {
+        AtomicInteger res = new AtomicInteger();
+        try {
+            ids.forEach(bookRecord -> {
+                returnBook(bookRecord);
+                res.getAndIncrement();
+            });
+            return new Result("200","批量还书成功，共还书" +res.get()+ "本",res.get());
+        } catch (Exception e) {
+            return new Result("500","批量还书失败！",res.get());
         }
     }
 }

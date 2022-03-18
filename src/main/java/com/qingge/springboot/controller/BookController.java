@@ -113,9 +113,19 @@ public class BookController {
      * @author clsoer
      * @date
      */
-    @PutMapping("/returnBook/{bookId}")
-    public Result returnBook(@PathVariable Integer bookId) {
-        return bookService.returnBook(bookId);
+    @PutMapping("/returnBook/{recordId}")
+    public Result returnBook(@PathVariable Integer recordId) {
+        return bookService.returnBook(recordId);
+    }
+
+    /**
+     * 批量还书
+     * @author clsoer
+     * @date
+     */
+    @PostMapping("/returnBook/batch")
+    public Result returnBookBatch(@RequestBody List<Integer> ids) {
+        return bookService.returnBookBatch(ids);
     }
 
 }

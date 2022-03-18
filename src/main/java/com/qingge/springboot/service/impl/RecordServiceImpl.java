@@ -11,9 +11,11 @@ import com.qingge.springboot.mapper.RecordMapper;
 import com.qingge.springboot.service.IRecordService;
 import com.qingge.springboot.utils.TokenUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,12 +34,21 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
     RecordMapper recordMapper;
 
     @Override
-    public Result findAllPage(String bookName, Integer pageNum, Integer pageSize) {
+    public Result findAllPage(Map<String, Object> params) {
+        String bookName = (String) params.get("bookName");
+        String status = (String) params.get("status");
+
+        int pageNum = Integer.parseInt((String) params.get("pageNum")) ;
+        int pageSize = Integer.parseInt((String) params.get("pageSize")) ;
         Page<Map<String, Object>> page = new Page<>(pageNum,pageSize);
         User currentUser = TokenUtils.getCurrentUser();
         assert currentUser != null;
+        Map<String, Object> param = new HashMap<>();
+        param.put("bookName", bookName);
+        param.put("status", status);
+        param.put("userId", currentUser.getId());
         try {
-            List<Map<String, Object>> records = recordMapper.findAllPage(page,currentUser.getId(),bookName);
+            List<Map<String, Object>> records = recordMapper.findAllPage(page,param);
             page.setRecords(records);
         } catch (Exception e) {
             e.printStackTrace();
