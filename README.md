@@ -15,7 +15,7 @@ Spring Boot定时任务
 
 #### (1)、数据报表页面展示（静态数据）
 
-![QQ截图20220408103749](assets\QQ截图20220408103749.png)
+![QQ截图20220408103749](https://gitee.com/orangeacc/library/raw/dev/assets/QQ%E6%88%AA%E5%9B%BE20220408103749.png)
 
 #### (2)、读者管理页面
 
