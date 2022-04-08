@@ -68,11 +68,4 @@ public class User implements Serializable {
 
     @ApiModelProperty("是否被禁用")
     private Boolean baned;
-
-    @TableField(exist = false)
-    private List<Course> courses;
-
-    @TableField(exist = false)
-    private List<Course> stuCourses;
-
 }
