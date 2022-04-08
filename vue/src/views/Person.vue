@@ -1,5 +1,5 @@
 <template>
-  <el-card style="width: 500px;"><h1>common</h1>
+  <el-card style="width: 500px;">
     <el-form label-width="80px" size="small">
       <el-upload
           class="avatar-uploader"

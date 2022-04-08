@@ -1,5 +1,5 @@
 <template>
-  <div><h3>admin</h3>
+  <div>
     <div style="margin: 10px 0">
       <el-input style="width: 200px" placeholder="请输入名称" suffix-icon="el-icon-search" v-model="name"></el-input>
       <el-button class="ml-5" type="primary" @click="load">搜索</el-button>
@@ -16,14 +16,14 @@
           title="您确定批量删除这些图书吗？"
           @confirm="delBatch"
       >
-        <el-button type="danger" slot="reference" v-if="user.role === 'ROLE_ADMIN'">批量删除 <i class="el-icon-remove-outline"></i></el-button>
+        <el-button type="danger" slot="reference">批量删除 <i class="el-icon-remove-outline"></i></el-button>
       </el-popconfirm>
 
     </div>
     <el-table :data="tableData" border stripe :header-cell-class-name="'headerBg'" style="font-size: 14px;"
               @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" v-if="user.role === 'ROLE_ADMIN'"></el-table-column>
-      <el-table-column prop="id" label="图书ID" width="80" v-if="user.role === 'ROLE_ADMIN'"></el-table-column>
+      <el-table-column type="selection" width="55"></el-table-column>
+      <el-table-column prop="id" label="图书ID" width="80"></el-table-column>
       <el-table-column prop="name" label="书名">
         <template slot-scope="scope">
           <span style="font-size: 15px;">《{{ scope.row.name }}》</span>
@@ -49,8 +49,7 @@
       </el-table-column>
       <el-table-column label="操作" width="250" align="center">
         <template slot-scope="scope">
-          <el-button type="primary" @click="borrowBook(scope.row)">借阅</el-button>
-          <el-button type="success" @click="handleEdit(scope.row)" v-if="user.role === 'ROLE_ADMIN'">编辑 <i class="el-icon-edit"></i></el-button>
+          <el-button type="success" @click="handleEdit(scope.row)">编辑 <i class="el-icon-edit"></i></el-button>
           <el-popconfirm
               class="ml-5"
               confirm-button-text='确定'
@@ -60,7 +59,7 @@
               title="您确定删除吗？"
               @confirm="del(scope.row.id)"
           >
-            <el-button type="danger" slot="reference" v-if="user.role === 'ROLE_ADMIN'">删除 <i class="el-icon-remove-outline"></i></el-button>
+            <el-button type="danger" slot="reference">删除 <i class="el-icon-remove-outline"></i></el-button>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -190,35 +189,6 @@ export default {
       let arr = []
       arr.push(img)
       return arr
-    },
-    borrowBook(row) {
-      if (row.nums <= 0) {
-        this.$message.error('库存不足！')
-        return
-      }
-      let bookId = row.id
-      let bookName = row.name
-      console.log("userId:"+this.user.id,"bookId:"+bookId)
-      this.$confirm('确认借阅《' + bookName +'》吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'success'
-      }).then(() => {
-        this.request.post('/book/borrowBook/' + bookId + "/" + this.user.id).then(res => {
-          if (res.code === '200') {
-            this.$message.success("借阅成功")
-            this.load()
-          } else {
-            this.$message.error(res.msg)
-            this.load()
-          }
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消借阅'
-        });
-      });
     },
     load() {
       let url = '/book/enableBooks';

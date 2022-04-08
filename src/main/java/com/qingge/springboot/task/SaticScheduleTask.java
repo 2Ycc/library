@@ -21,12 +21,13 @@ public class SaticScheduleTask {
     IRecordService iRecordService;
 
     //3.添加定时任务
+//    @Scheduled(cron = "*/30 * * * * ? ")
     @Scheduled(cron = "0 0 0/1 * * ? ")
     //或直接指定时间间隔，例如：每小时
     //@Scheduled(fixedRate=5000)
     private void configureTasks() {
         System.out.println("执行静态定时任务时间: " + LocalDateTime.now());
-        //执行定时任务，将逾期的借书记录状态更改为”逾期“
+        //执行定时任务，将逾期的借书记录状态更改为”逾期“,并且插入记录到逾期表中
         iRecordService.changeModeTask();
     }
 }

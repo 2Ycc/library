@@ -71,4 +71,40 @@ public interface RecordMapper extends BaseMapper<Record> {
      */
     @Select("select * from t_record where DATEDIFF(expire_time,CURRENT_TIMESTAMP) < 0 and `status` = 0")
     List<Record> getAllShouldChangedRecords();
+
+    @Select({
+            "<script>" ,
+            "select " ,
+            "reader.username username," ,
+            "record.id recordId," ,
+            "record.user_id userId," ,
+            "record.book_id bookId," ,
+            "record.renew renew," ,
+            "record.borrow_time borrowTime," ,
+            "record.expire_time expireTime," ,
+            "record.create_time createTime," ,
+            "IF(DATEDIFF(record.expire_time,CURRENT_TIMESTAMP) &lt; 0,0,DATEDIFF(record.expire_time,CURRENT_TIMESTAMP)) lastDay," ,
+            "CASE record.status" ,
+            "WHEN '0' THEN '未还'" ,
+            "WHEN '2' THEN '逾期'" ,
+            "ELSE '已还'" ,
+            "END as status," ,
+            "book.`name` bookName," ,
+            "book.isbn isbn," ,
+            "book.author author," ,
+            "book.publisher publisher," ,
+            "book.publish_time publishTime," ,
+            "book.img img" ,
+            "from t_book as book " ,
+            "left join t_record as record on book.id = record.book_id " ,
+            "left join sys_user as reader on record.user_id = reader.id " ,
+            "where reader.username like concat('%', #{params.username}, '%') " ,
+            "and book.`name` like concat('%',#{params.bookName},'%') " ,
+            "<if test='params.status != null and params.status.length != 0'>" ,
+            "and record.status = #{params.status}" ,
+            "</if>" ,
+            "order by record.status desc",
+            "</script>"
+    })
+    List<Map<String, Object>> findAllPageAdmin(Page<Map<String, Object>> page, Map<String, Object> params);
 }

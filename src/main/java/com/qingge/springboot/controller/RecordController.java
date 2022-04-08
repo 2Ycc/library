@@ -54,6 +54,17 @@ public class RecordController {
         return Result.success(recordService.list());
     }
 
+    /**
+     * 管理员查询所有
+     * @author ymy
+     * @date 2022/3/21 17:32
+     * @return com.qingge.springboot.common.Result
+     */
+    @GetMapping("/findAllPage")
+    public Result findAllPageAdmin(@RequestParam Map<String, Object> params) {
+        return recordService.findAllPageAdmin(params);
+    }
+
     @GetMapping("/{id}")
     public Result findOne(@PathVariable Integer id) {
         return Result.success(recordService.getById(id));

@@ -1,5 +1,5 @@
 <template>
-  <div><h1>common</h1>
+  <div>
     <div style="margin: 10px 0">
       <el-input style="width: 200px" placeholder="请输入名称" suffix-icon="el-icon-search" v-model="username"></el-input>
       <el-input style="width: 200px" placeholder="请输入邮箱" suffix-icon="el-icon-message" class="ml-5" v-model="email"></el-input>
@@ -42,6 +42,14 @@
       <el-table-column prop="email" label="邮箱"></el-table-column>
       <el-table-column prop="phone" label="电话"></el-table-column>
       <el-table-column prop="address" label="地址"></el-table-column>
+      <el-table-column prop="credit" label="信用分数"></el-table-column>
+<!--      <el-table-column prop="baned" label="禁止登录"></el-table-column>-->
+      <el-table-column label="禁止登录">
+        <template slot-scope="scope">
+          <el-switch v-model="scope.row.baned" active-color="#13ce66" inactive-color="#ccc"
+                     @change="changeEnable(scope.row)"></el-switch>
+        </template>
+      </el-table-column>
       <el-table-column label="操作"  width="500" align="center">
         <template slot-scope="scope">
           <el-button type="primary" @click="lookCourse(scope.row.courses)" v-if="scope.row.role === 'ROLE_TEACHER'">查看教授课程 <i class="el-icon-document"></i></el-button>
@@ -119,7 +127,7 @@
 </template>
 
 <script>
-import {serverIp} from "../../public/config";
+import {serverIp} from "../../../public/config";
 
 export default {
   name: "User",
@@ -193,6 +201,18 @@ export default {
     handleEdit(row) {
       this.form = JSON.parse(JSON.stringify(row))
       this.dialogFormVisible = true
+    },
+    changeEnable(row) {
+      if (row.role === 'ROLE_ADMIN') {
+        this.$message.error('不可以禁用管理员账号！')
+        row.baned = false
+        return
+      }
+      this.request.post("/user", row).then(res => {
+        if (res.code === '200') {
+          this.$message.success("操作成功")
+        }
+      })
     },
     del(id) {
       this.request.delete("/user/" + id).then(res => {

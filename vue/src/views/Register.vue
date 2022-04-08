@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper"><h1>common</h1>
+  <div class="wrapper">
     <div style="margin: 100px auto; background-color: #fff; width: 350px; height: 400px; padding: 20px; border-radius: 10px">
       <div style="margin: 20px 0; text-align: center; font-size: 24px"><b>注 册</b></div>
       <el-form :model="user" :rules="rules" ref="userForm">

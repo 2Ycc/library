@@ -3,11 +3,6 @@
     <div style="margin: 10px 0">
       <el-input style="width: 200px" placeholder="请输入书名" suffix-icon="el-icon-search" v-model="searchForm.bookName"></el-input>
       <el-input style="width: 200px" placeholder="请输入用户名" suffix-icon="el-icon-search" class="ml-5" v-model="searchForm.username"></el-input>
-      <el-select style="width: 200px" v-model="searchForm.status" class="ml-5" placeholder="请选择借阅状态">
-        <el-option label="借阅中" value="0"></el-option>
-        <el-option label="已还" value="1"></el-option>
-        <el-option label="逾期" value="2"></el-option>
-      </el-select>
       <el-button class="ml-5" type="primary" @click="load">搜索</el-button>
       <el-button type="warning" @click="reset">重置</el-button>
     </div>
@@ -20,18 +15,18 @@
               @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column type="index" label="序号" width="80"></el-table-column>
+      <el-table-column prop="username" label="借阅者"></el-table-column>
       <el-table-column prop="bookName" label="书名">
         <template slot-scope="scope">
           <span style="font-size: 15px;">《{{ scope.row.bookName }}》</span>
         </template>
       </el-table-column>
-      <el-table-column prop="username" label="借阅者"></el-table-column>
       <el-table-column prop="img" label="封面">
         <template v-slot="scope">
           <el-image :src="scope.row.img" :preview-src-list="toImgArray(scope.row.img)" alt="书籍封面" width="50" height="50"/>
         </template>
       </el-table-column>
-<!--      <el-table-column prop="isbn" label="ISBN码"></el-table-column>-->
+      <!--      <el-table-column prop="isbn" label="ISBN码"></el-table-column>-->
       <el-table-column prop="author" label="作者"></el-table-column>
       <el-table-column prop="publisher" label="出版社"></el-table-column>
       <el-table-column prop="borrowTime" width="120" label="借阅时间"></el-table-column>
@@ -43,28 +38,6 @@
           <el-tag type="info" v-if="scope.row.status === '已还'">已还</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="lastDay" label="剩余天数" align="center">
-          <template v-slot="scope">
-            <span v-if="scope.row.status === '已还'">0</span>
-            <span v-else>{{ scope.row.lastDay }}</span>
-          </template>
-      </el-table-column>
-<!--      <el-table-column label="操作" width="250" align="center">-->
-<!--        <template slot-scope="scope">-->
-<!--          <el-button type="primary" @click="recordInfo(scope.row)">查看 <i class="el-icon-info"></i></el-button>-->
-<!--          <el-popconfirm-->
-<!--              class="ml-5"-->
-<!--              confirm-button-text='确定'-->
-<!--              cancel-button-text='我再想想'-->
-<!--              icon="el-icon-info"-->
-<!--              icon-color="red"-->
-<!--              title="您确定催还吗？"-->
-<!--              @confirm="returnBook(scope.row.bookId)"-->
-<!--          >-->
-<!--            <el-button type="danger" slot="reference">催还 <i class="el-icon-remove-outline"></i></el-button>-->
-<!--          </el-popconfirm>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
     </el-table>
 
     <div style="padding: 10px 0">
@@ -136,15 +109,15 @@ export default {
       // });
     },
     load() {
-      let url = '/record/findAllPage';
-      this.request.get(url, {
-        params: {
+      let url = '/overdue/findAll';
+      this.request.post(url, {
+        // params: {
           pageNum: this.pageNum,
           pageSize: this.pageSize,
           bookName: this.searchForm.bookName,
           username: this.searchForm.username,
           status: this.searchForm.status,
-        }
+        // }
       }).then(res => {
         this.tableData = res.data.records
         this.total = res.data.total

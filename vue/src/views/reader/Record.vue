@@ -1,5 +1,5 @@
 <template>
-  <div><h1>reader</h1>
+  <div>
     <div style="margin: 10px 0">
       <el-input style="width: 200px" placeholder="请输入名称" suffix-icon="el-icon-search" v-model="searchForm.name"></el-input>
       <el-select style="width: 200px" v-model="searchForm.status" class="ml-5" placeholder="请选择借阅状态">

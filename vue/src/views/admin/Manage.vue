@@ -1,6 +1,5 @@
 <template>
   <el-container style="min-height: 100vh">
-    <h1>admin</h1>
     <el-aside :width="sideWidth + 'px'" style="box-shadow: 2px 0 6px rgb(0 21 41 / 35%);">
       <Aside :isCollapse="isCollapse" :logoTextShow="logoTextShow" />
     </el-aside>

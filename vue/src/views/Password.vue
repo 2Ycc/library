@@ -1,5 +1,5 @@
 <template>
-  <el-card style="width: 500px;"><h1>common</h1>
+  <el-card style="width: 500px;">
     <el-form label-width="120px" size="small" :model="form" :rules="rules" ref="pass">
 
       <el-form-item label="原密码" prop="password">

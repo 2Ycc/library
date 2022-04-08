@@ -55,6 +55,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Override
     public UserDTO login(UserDTO userDTO) {
         User one = getUserInfo(userDTO);
+        if (ObjectUtil.isNull(one)) {
+            throw new ServiceException(Constants.CODE_600, "用户名或密码错误");
+        }
         if (one.getBaned()) {
             throw new ServiceException(Constants.CODE_700, "该用户已被禁止登录");
         }

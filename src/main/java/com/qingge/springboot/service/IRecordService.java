@@ -22,4 +22,6 @@ public interface IRecordService extends IService<Record> {
     Result renewBorrow(String recordId);
 
     int changeModeTask();
+
+    Result findAllPageAdmin(Map<String, Object> params);
 }

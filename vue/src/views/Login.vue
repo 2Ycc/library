@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper"><h1>common</h1>
+  <div class="wrapper">
     <div
         style="margin: 200px auto; background-color: #fff; width: 350px; height: 300px; padding: 20px; border-radius: 10px">
       <div style="margin: 20px 0; text-align: center; font-size: 24px"><b>登 录</b></div>
