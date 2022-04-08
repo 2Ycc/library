@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -64,10 +63,9 @@ public class User implements Serializable {
     @ApiModelProperty("角色")
     private String role;
 
-    @TableField(exist = false)
-    private List<Course> courses;
+    @ApiModelProperty("信用积分")
+    private Integer credit;
 
-    @TableField(exist = false)
-    private List<Course> stuCourses;
-
+    @ApiModelProperty("是否被禁用")
+    private Boolean baned;
 }

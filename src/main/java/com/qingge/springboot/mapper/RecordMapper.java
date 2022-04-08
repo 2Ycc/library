@@ -1,7 +1,6 @@
 package com.qingge.springboot.mapper;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.qingge.springboot.common.Result;
 import com.qingge.springboot.entity.Record;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
@@ -21,39 +20,43 @@ import java.util.Map;
  */
 public interface RecordMapper extends BaseMapper<Record> {
 
-    @Select("select \n" +
-            "record.id recordId,\n" +
-            "record.user_id userId,\n" +
-            "record.book_id bookId,\n" +
-            "record.renew renew,\n" +
-            "record.borrow_time borrowTime,\n" +
-            "record.expire_time expireTime,\n" +
-            "record.create_time createTime,\n" +
-            "IF(DATEDIFF(record.expire_time,CURRENT_TIMESTAMP) < 0,0,DATEDIFF(record.expire_time,CURRENT_TIMESTAMP)) lastDay,\n" +
-            "\n" +
-            "CASE record.status\n" +
-            "\tWHEN '0' THEN\n" +
-            "\t\t'未还'\n" +
-            "WHEN '2' THEN\n" +
-            "\t\t'逾期'\n" +
-            "\tELSE\n" +
-            "\t\t'已还'\n" +
-            "END as status,\n" +
-            "book.`name` bookName,\n" +
-            "book.isbn isbn,\n" +
-            "book.author author,\n" +
-            "book.publisher publisher,\n" +
-            "book.publish_time publishTime,\n" +
-            "book.img img\n" +
-            "from t_book as book left join t_record as record\n" +
-            "on book.id = record.book_id\n" +
-            "where record.user_id = #{userId} " +
-            "and book.`name` like concat('%',#{bookName},'%')")
-    List<Map<String,Object>> findAllPage(@Param("page") Page<Map<String,Object>> page, @Param("userId") Integer userId, @Param("bookName") String bookName);
+    @Select({
+            "<script>" ,
+            "select " ,
+            "record.id recordId," ,
+            "record.user_id userId," ,
+            "record.book_id bookId," ,
+            "record.renew renew," ,
+            "record.borrow_time borrowTime," ,
+            "record.expire_time expireTime," ,
+            "record.create_time createTime," ,
+            "IF(DATEDIFF(record.expire_time,CURRENT_TIMESTAMP) &lt; 0,0,DATEDIFF(record.expire_time,CURRENT_TIMESTAMP)) lastDay," ,
+            "CASE record.status" ,
+            "WHEN '0' THEN '未还'" ,
+            "WHEN '2' THEN '逾期'" ,
+            "ELSE '已还'" ,
+            "END as status," ,
+            "book.`name` bookName," ,
+            "book.isbn isbn," ,
+            "book.author author," ,
+            "book.publisher publisher," ,
+            "book.publish_time publishTime," ,
+            "book.img img" ,
+            "from t_book as book left join t_record as record" ,
+            "on book.id = record.book_id" ,
+            "where record.user_id = #{params.userId} " ,
+            "and book.`name` like concat('%',#{params.bookName},'%') " ,
+            "<if test='params.status != null and params.status.length != 0'>" ,
+            "and record.status = #{params.status}" ,
+            "</if>" ,
+            "order by record.status desc",
+            "</script>"
+    })
+    List<Map<String,Object>> findAllPage(@Param("page") Page<Map<String,Object>> page, @Param("params") Map<String,Object> params);
 
     @Update("<script>"+
-                "update t_record \n" +
-                "set `status` = '2'\n" +
+                "update t_record  " +
+                "set `status` = '2' " +
                 "where id in " +
                 "<foreach collection ='records' item='record' open='(' separator=',' close=')' >" +
                 " #{record.id} " +
@@ -68,4 +71,40 @@ public interface RecordMapper extends BaseMapper<Record> {
      */
     @Select("select * from t_record where DATEDIFF(expire_time,CURRENT_TIMESTAMP) < 0 and `status` = 0")
     List<Record> getAllShouldChangedRecords();
+
+    @Select({
+            "<script>" ,
+            "select " ,
+            "reader.username username," ,
+            "record.id recordId," ,
+            "record.user_id userId," ,
+            "record.book_id bookId," ,
+            "record.renew renew," ,
+            "record.borrow_time borrowTime," ,
+            "record.expire_time expireTime," ,
+            "record.create_time createTime," ,
+            "IF(DATEDIFF(record.expire_time,CURRENT_TIMESTAMP) &lt; 0,0,DATEDIFF(record.expire_time,CURRENT_TIMESTAMP)) lastDay," ,
+            "CASE record.status" ,
+            "WHEN '0' THEN '未还'" ,
+            "WHEN '2' THEN '逾期'" ,
+            "ELSE '已还'" ,
+            "END as status," ,
+            "book.`name` bookName," ,
+            "book.isbn isbn," ,
+            "book.author author," ,
+            "book.publisher publisher," ,
+            "book.publish_time publishTime," ,
+            "book.img img" ,
+            "from t_book as book " ,
+            "left join t_record as record on book.id = record.book_id " ,
+            "left join sys_user as reader on record.user_id = reader.id " ,
+            "where reader.username like concat('%', #{params.username}, '%') " ,
+            "and book.`name` like concat('%',#{params.bookName},'%') " ,
+            "<if test='params.status != null and params.status.length != 0'>" ,
+            "and record.status = #{params.status}" ,
+            "</if>" ,
+            "order by record.status desc",
+            "</script>"
+    })
+    List<Map<String, Object>> findAllPageAdmin(Page<Map<String, Object>> page, Map<String, Object> params);
 }

@@ -103,8 +103,15 @@ public class BookController {
         return Result.success(bookService.page(new Page<>(pageNum, pageSize), queryWrapper));
     }
 
-    @PostMapping("/borrowBook/{bookId}/{userId}")
-    public Result borrowBook(@PathVariable Integer bookId, @PathVariable Integer userId) {
+    /**
+     * 借书
+     * @author ymy
+     * @date 2022/3/18 17:42
+     * @param bookId 书籍id
+     * @return com.qingge.springboot.common.Result
+     */
+    @PostMapping("/borrowBook/{bookId}")
+    public Result borrowBook(@PathVariable Integer bookId) {
         return bookService.borrowBook(bookId);
     }
 
@@ -113,9 +120,19 @@ public class BookController {
      * @author clsoer
      * @date
      */
-    @PutMapping("/returnBook/{bookId}")
-    public Result returnBook(@PathVariable Integer bookId) {
-        return bookService.returnBook(bookId);
+    @PutMapping("/returnBook/{recordId}")
+    public Result returnBook(@PathVariable Integer recordId) {
+        return bookService.returnBook(recordId);
+    }
+
+    /**
+     * 批量还书
+     * @author clsoer
+     * @date
+     */
+    @PostMapping("/returnBook/batch")
+    public Result returnBookBatch(@RequestBody List<Integer> ids) {
+        return bookService.returnBookBatch(ids);
     }
 
 }

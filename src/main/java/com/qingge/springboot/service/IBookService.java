@@ -4,6 +4,8 @@ import com.qingge.springboot.common.Result;
 import com.qingge.springboot.entity.Book;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  *  服务类
@@ -17,4 +19,6 @@ public interface IBookService extends IService<Book> {
     Result borrowBook(Integer bookId);
 
     Result returnBook(Integer bookId);
+
+    Result returnBookBatch(List<Integer> ids);
 }

@@ -5,17 +5,21 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qingge.springboot.common.Constants;
 import com.qingge.springboot.common.Result;
+import com.qingge.springboot.entity.Overdue;
 import com.qingge.springboot.entity.Record;
 import com.qingge.springboot.entity.User;
+import com.qingge.springboot.mapper.OverdueMapper;
 import com.qingge.springboot.mapper.RecordMapper;
 import com.qingge.springboot.service.IRecordService;
 import com.qingge.springboot.utils.TokenUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 /**
  * <p>
@@ -31,13 +35,25 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
     @Resource
     RecordMapper recordMapper;
 
+    @Resource
+    OverdueMapper overdueMapper;
+
     @Override
-    public Result findAllPage(String bookName, Integer pageNum, Integer pageSize) {
+    public Result findAllPage(Map<String, Object> params) {
+        String bookName = (String) params.get("bookName");
+        String status = (String) params.get("status");
+
+        int pageNum = Integer.parseInt((String) params.get("pageNum")) ;
+        int pageSize = Integer.parseInt((String) params.get("pageSize")) ;
         Page<Map<String, Object>> page = new Page<>(pageNum,pageSize);
         User currentUser = TokenUtils.getCurrentUser();
         assert currentUser != null;
+        Map<String, Object> param = new HashMap<>();
+        param.put("bookName", bookName);
+        param.put("status", status);
+        param.put("userId", currentUser.getId());
         try {
-            List<Map<String, Object>> records = recordMapper.findAllPage(page,currentUser.getId(),bookName);
+            List<Map<String, Object>> records = recordMapper.findAllPage(page,param);
             page.setRecords(records);
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,13 +92,50 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public int changeModeTask() {
         List<Record> records = recordMapper.getAllShouldChangedRecords();
+        List<Overdue> list = new ArrayList<>();
+
         if (records.isEmpty()) {
             return 0;
         } else {
+            records.forEach(record -> {
+                Overdue overdue = new Overdue();
+                overdue.setRecordId(record.getId());
+                overdue.setUserId(record.getUserId());
+                overdue.setOverdueTime(LocalDateTime.now());
+                list.add(overdue);
+            });
+            overdueMapper.batchInsert(list);
             return recordMapper.changeMode(records);
         }
+    }
+
+    @Override
+    public Result findAllPageAdmin(Map<String, Object> params) {
+        int pageNum = Integer.parseInt((String) params.get("pageNum")) ;
+        int pageSize = Integer.parseInt((String) params.get("pageSize")) ;
+
+        Map<String, Object> param = new HashMap<>();
+        param.put("bookName", params.remove("bookName"));
+        param.put("username", params.remove("username"));
+        param.put("status", params.remove("status"));
+
+        Page<Map<String, Object>> page = new Page<>(pageNum,pageSize);
+        User currentUser = TokenUtils.getCurrentUser();
+        assert currentUser != null;
+//        if (!Objects.equals(currentUser.getRole(), "ROLE_ADMIN")) {
+//            return new Result("400","无权限查看所有借书记录",null);
+//        }
+        try {
+            List<Map<String, Object>> records = recordMapper.findAllPageAdmin(page,param);
+            page.setRecords(records);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result("400","查询失败",null);
+        }
+        return new Result("200","查询成功",page);
     }
 }

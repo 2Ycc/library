@@ -53,7 +53,7 @@
             <span>喝杯咖啡</span>
           </div>
           <div style="text-align: center">
-            <img src="https://img-blog.csdnimg.cn/9250639d4fc74eb385e5975f58bef0da.png" alt="">
+<!--            <img src="https://img-blog.csdnimg.cn/9250639d4fc74eb385e5975f58bef0da.png" alt="">-->
             <div class="pd-10">您可以请作者喝杯咖啡以资鼓励</div>
           </div>
         </el-card>

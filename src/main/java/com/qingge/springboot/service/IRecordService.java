@@ -5,6 +5,7 @@ import com.qingge.springboot.entity.Record;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -16,9 +17,11 @@ import java.util.List;
  */
 public interface IRecordService extends IService<Record> {
 
-    Result findAllPage(String bookName, Integer pageNum, Integer pageSize);
+    Result findAllPage(Map<String, Object> params);
 
     Result renewBorrow(String recordId);
 
     int changeModeTask();
+
+    Result findAllPageAdmin(Map<String, Object> params);
 }
