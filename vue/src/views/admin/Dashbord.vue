@@ -11,23 +11,23 @@
       </el-col>
       <el-col :span="6">
         <el-card style="color: #F56C6C">
-          <div><i class="el-icon-money" /> 销售总量</div>
+          <div><i class="el-icon-money" /> 图书总量</div>
           <div style="padding: 10px 0; text-align: center; font-weight: bold">
-            ￥ 1000000
+            10000
           </div>
         </el-card>
       </el-col>
       <el-col :span="6">
         <el-card style="color: #67C23A">
-          <div><i class="el-icon-bank-card" /> 收益总额</div>
+          <div><i class="el-icon-bank-card" /> 在借总数</div>
           <div style="padding: 10px 0; text-align: center; font-weight: bold">
-            ￥ 300000
+            500
           </div>
         </el-card>
       </el-col>
       <el-col :span="6">
         <el-card style="color: #E6A23C">
-          <div><i class="el-icon-s-shop" /> 门店总数</div>
+          <div><i class="el-icon-s-shop" /> 逾期总数</div>
           <div style="padding: 10px 0; text-align: center; font-weight: bold">
             20
           </div>
@@ -60,7 +60,7 @@ export default {
   mounted() {  // 页面元素渲染之后再触发
     var option = {
       title: {
-        text: '各季度会员数量统计',
+        text: '各季度借书数量统计',
         subtext: '趋势图',
         left: 'center'
       },
@@ -80,22 +80,32 @@ export default {
       },
       series: [
         {
-          name: "星巴克",
+          name: "借出",
           data: [],
           type: 'bar'
         },
         {
-          name: "星巴克",
+          name: "借出",
           data: [],
           type: 'line'
         },
         {
-          name: "瑞幸咖啡",
+          name: "归还",
           data: [],
           type: 'bar'
         },
         {
-          name: "瑞幸咖啡",
+          name: "归还",
+          data: [],
+          type: 'line'
+        },
+        {
+          name: "逾期",
+          data: [],
+          type: 'bar'
+        },
+        {
+          name: "逾期",
           data: [],
           type: 'line'
         }
@@ -106,7 +116,7 @@ export default {
 
     var pieOption = {
       title: {
-        text: '各季度会员数量统计',
+        text: '各季度图书借出归还数量统计',
         subtext: '比例图',
         left: 'center'
       },
@@ -120,7 +130,7 @@ export default {
       },
       series: [
         {
-          name: "星巴克",
+          name: "借出",
           type: 'pie',
           radius: '55%',
           center: ['25%', '70%'],
@@ -146,7 +156,7 @@ export default {
           }
         },
         {
-          name: "瑞幸咖啡",
+          name: "归还",
           type: 'pie',
           radius: '50%',
           center: ['75%', '50%'],
@@ -190,11 +200,14 @@ export default {
     this.request.get("/echarts/members").then(res => {
       // 填空
       // option.xAxis.data = res.data.x
-      option.series[0].data = res.data
-      option.series[1].data = res.data
+      option.series[0].data = [50,60,70,80]
+      option.series[1].data = [50,60,70,80]
 
-      option.series[2].data = [5,6,7,8]
-      option.series[3].data = [5,6,7,8]
+      option.series[2].data = [55,60,69,78]
+      option.series[3].data = [55,60,69,78]
+
+      option.series[4].data = [5,0,1,2]
+      option.series[5].data = [5,0,1,2]
       // 数据准备完毕之后再set
       myChart.setOption(option);
 
